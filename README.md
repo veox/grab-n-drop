@@ -1,4 +1,5 @@
-grab-n-drop
-===========
+# grab-n-drop
 
-Shell functions to move files while changing directories
+Shell functions to move files while changing directories.
+
+Source this from `.zprofile`.
