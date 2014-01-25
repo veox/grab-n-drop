@@ -1,0 +1,55 @@
+#!/bin/zsh
+# grab'n'drop
+# move files while changing directories
+# AUTHORS: veox <veox tad wemakethings tad net>
+# LICENSE: GPLv3
+
+
+## ========= DEFAULTS =========
+
+tempdir=~/tmp
+grabfile=$tempdir/grab      # list of files to be moved
+tempfile=$tempdir/grab.tmp  # supplemental
+
+
+## ========= FUNCTIONS =========
+
+drop () {
+    touch $grabfile
+
+    # make sure the same stuff doesn't get grabbed twice
+    uniq $grabfile > $tempfile
+    mv $tempfile $grabfile
+
+    echo -n "" > $tempfile  # clear or create if missing
+
+    cat $grabfile | while read -r item; do
+	mv "$item" . 2> /dev/null
+	if [ $? -ne 0 ]; then
+	    echo "$item" >> $tempfile
+	    echo "Cannot move: $item"
+	fi
+    done
+
+    # leave files that could'n be copied for next time
+    mv $tempfile $grabfile
+}
+
+grab () {
+    touch $grabfile
+    dir=`pwd`
+    for item in "$@"; do
+	if [ -e "$dir/$item" ]; then
+	    echo "$dir/$item" >> $grabfile
+	else
+	    echo "Cannot grab: $dir/$item"
+	fi
+    done
+}
+
+lose () {
+    echo "Losing:"
+    cat $grabfile
+    rm $grabfile
+    touch $grabfile
+}
